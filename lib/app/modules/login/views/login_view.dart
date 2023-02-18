@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
+import 'package:qr_code_firebase/app/controllers/auth_controller.dart';
+import 'package:qr_code_firebase/app/routes/app_pages.dart';
 
 import '../controllers/login_controller.dart';
 
@@ -8,8 +9,13 @@ class LoginView extends GetView<LoginController> {
   const LoginView({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+    final TextEditingController emailController =
+        TextEditingController(text: 'admin@gmail.com');
+    final TextEditingController passwordController =
+        TextEditingController(text: 'fahmi0810');
+
+    final AuthController authController = Get.find<AuthController>();
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Login'),
@@ -26,7 +32,7 @@ class LoginView extends GetView<LoginController> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                label: Text('Email'),
+                label: const Text('Email'),
               ),
             ),
             const SizedBox(
@@ -54,9 +60,30 @@ class LoginView extends GetView<LoginController> {
               height: 16,
             ),
             ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () async {
+                //cek kalau kondisi aplikasinya
+                if (controller.isLoading.isFalse) {
+                  if (emailController.text.isNotEmpty &&
+                      passwordController.text.isNotEmpty) {
+                    controller.isLoading.isTrue;
+                    Map<String, dynamic> hasil = await authController.login(
+                        emailController.text, passwordController.text);
+                    controller.isLoading.isFalse;
+
+                    if (hasil['error'] == true) {
+                      Get.snackbar("error", hasil["message"],
+                          icon: Icon(Icons.error));
+                    } else {
+                      Get.offAllNamed(Routes.home);
+                    }
+                  } else {
+                    Get.snackbar('error', 'Email dan password harus diisi');
+                  }
+                }
+              },
               icon: const Icon(Icons.login_outlined),
-              label: const Text('Login'),
+              label: Obx(() =>
+                  Text(controller.isLoading.isFalse ? 'Login' : 'Loading')),
               style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
