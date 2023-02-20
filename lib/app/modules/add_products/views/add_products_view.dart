@@ -7,12 +7,12 @@ class AddProductsView extends GetView<AddProductsController> {
   const AddProductsView({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    TextEditingController _productCode = TextEditingController();
-    TextEditingController _productname = TextEditingController();
-    TextEditingController _quantityProduct = TextEditingController();
+    TextEditingController productCode = TextEditingController();
+    TextEditingController productname = TextEditingController();
+    TextEditingController quantityProduct = TextEditingController();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AddProductsView'),
+        title: const Text('Tambah Produk'),
         centerTitle: true,
       ),
       body: ListView(
@@ -20,7 +20,7 @@ class AddProductsView extends GetView<AddProductsController> {
         children: [
           TextField(
             autocorrect: false,
-            controller: _productCode,
+            controller: productCode,
             keyboardType: TextInputType.number,
             maxLength: 10,
             decoration: InputDecoration(
@@ -35,7 +35,7 @@ class AddProductsView extends GetView<AddProductsController> {
           ),
           TextField(
             autocorrect: false,
-            controller: _productname,
+            controller: productname,
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -44,11 +44,11 @@ class AddProductsView extends GetView<AddProductsController> {
                 label: const Text('Nama Produk')),
           ),
           const SizedBox(
-            height: 16,
+            height: 20,
           ),
           TextField(
             autocorrect: false,
-            controller: _productname,
+            controller: quantityProduct,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -57,16 +57,33 @@ class AddProductsView extends GetView<AddProductsController> {
                 label: const Text('Jumlah')),
           ),
           const SizedBox(
-            height: 16,
+            height: 20,
           ),
           ElevatedButton.icon(
             onPressed: () async {
               //cek kalau kondisi aplikasinya
               if (controller.isLoading.isFalse) {
+                if (productCode.text.isNotEmpty &&
+                    productname.text.isNotEmpty &&
+                    quantityProduct.text.isNotEmpty) {
+                  Map<String, dynamic> hasil = await controller.addProduct({
+                    "code": productCode.text,
+                    "name": productname.text,
+                    "qty": int.tryParse(quantityProduct.text) ?? 0
+                  });
+                  controller.isLoading(false);
+                  Get.back();
+                  if (hasil["error"] == false) {
+                    Get.snackbar(hasil["error"] == true ? "Error" : "success",
+                        hasil["message"]);
+                  }
+                } else {
+                  Get.snackbar("error", "Data wajib diisi");
+                }
                 controller.isLoading.isFalse;
               }
             },
-            icon: const Icon(Icons.login_outlined),
+            icon: const Icon(Icons.add),
             label: Obx(() => Text(
                 controller.isLoading.isFalse ? 'Tambah produk' : 'Loading')),
             style: ElevatedButton.styleFrom(

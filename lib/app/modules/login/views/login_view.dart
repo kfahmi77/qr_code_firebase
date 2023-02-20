@@ -61,34 +61,35 @@ class LoginView extends GetView<LoginController> {
           ),
           ElevatedButton.icon(
             onPressed: () async {
-              //cek kalau kondisi aplikasinya
               if (controller.isLoading.isFalse) {
                 if (emailController.text.isNotEmpty &&
                     passwordController.text.isNotEmpty) {
-                  controller.isLoading.isTrue;
+                  controller.isLoading(true);
                   Map<String, dynamic> hasil = await authController.login(
                       emailController.text, passwordController.text);
-                  controller.isLoading.isFalse;
+                  controller.isLoading(false);
 
-                  if (hasil['error'] == true) {
-                    Get.snackbar("error", hasil["message"],
-                        icon: Icon(Icons.error));
+                  if (hasil["error"] == true) {
+                    Get.snackbar("Error", hasil["message"]);
                   } else {
                     Get.offAllNamed(Routes.home);
                   }
                 } else {
-                  Get.snackbar('error', 'Email dan password harus diisi');
+                  Get.snackbar("Error", "Email dan password wajib diisi.");
                 }
               }
             },
-            icon: const Icon(Icons.login_outlined),
-            label: Obx(
-                () => Text(controller.isLoading.isFalse ? 'Login' : 'Loading')),
             style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                padding: const EdgeInsets.symmetric(vertical: 16)),
-          )
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(9),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 20),
+            ),
+            icon: const Icon(Icons.login),
+            label: Obx(
+              () => Text(controller.isLoading.isFalse ? "LOGIN" : "LOADING..."),
+            ),
+          ),
         ],
       ),
     );
